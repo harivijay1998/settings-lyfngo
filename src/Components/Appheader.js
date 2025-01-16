@@ -15,16 +15,25 @@ const AppHeader = () => {
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#ffffff", color: "#000", width: "92vw", marginInlineStart: "120px" }}>
+    <AppBar position="static" sx={{ backgroundColor: "#ffffff", color: "#000", width: "100vw", marginInlineStart: "0px" }}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", padding: "0 16px" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            Fortis
-          </Typography>
+        <Box display={"flex"} gap={"30px"} sx={{ 
+          display: { xs: "block", md: "flex" }
+        }}>
+          <img
+            src="images/icons_sidebar/Care.svg"
+            alt="care_icon"
+            style={{ height: "50px", width: "70px" }}
+          />
+          <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              Fortis
+            </Typography>
+          </Box>
         </Box>
-
+      
         <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Box sx={{ display: "flex", alignItems: "center", border: "1px solid #ccc", borderRadius: "20px", padding: "4px 12px", height: "30px", width: "400px" }}>
+          <Box sx={{ display:{ md:"flex" , xs:"none"} , alignItems: "center", border: "1px solid #ccc", borderRadius: "20px", padding: "4px 12px", height: "30px", width: "400px" }}>
             <select style={{ border: "none", outline: "none", background: "transparent", fontSize: "16px", fontWeight: "bold" }}>
               <option>Mobile No</option>
             </select>
@@ -56,15 +65,12 @@ const AppHeader = () => {
               }}
             />
           </Box>
+
           <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <IconButton sx={{ backgroundColor: "#00aaff", color: "#fff", borderRadius: "30px", paddingInline: "20px", "&:focus": {
-      backgroundColor: "#00aaff", 
-    }, }}>
+            <IconButton sx={{ backgroundColor: "#00aaff", color: "#fff", borderRadius: "30px", paddingInline: "20px", "&:focus": { backgroundColor: "#00aaff" }, }}>
               <PersonAddAltIcon />
             </IconButton>
-            <IconButton sx={{ backgroundColor: "#00aaff", color: "#fff",borderRadius: "30px", paddingInline: "20px" , "&:focus": {
-      backgroundColor: "#00aaff", 
-    },}}>
+            <IconButton sx={{ backgroundColor: "#00aaff", color: "#fff", borderRadius: "30px", paddingInline: "20px", "&:focus": { backgroundColor: "#00aaff" }, }}>
               <CalendarTodayIcon />
             </IconButton>
             <IconButton>
@@ -77,15 +83,18 @@ const AppHeader = () => {
               <NotificationsIcon />
             </IconButton>
           </Box>
-          <Divider orientation="vertical" flexItem sx={{height:'40px'}}/>
-          <Box sx={{display:'flex', flexDirection:'column'}}>
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Karthikeya
-          </Typography>
-          <Typography variant="caption" sx={{ color: "gray" }}>
-            Owner
-          </Typography>
+        
+          <Divider orientation="vertical" flexItem sx={{ height: '40px' }} />
+
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+              Karthikeya
+            </Typography>
+            <Typography variant="caption" sx={{ color: "gray" }}>
+              Owner
+            </Typography>
           </Box>
+
           <IconButton>
             <AccountCircle fontSize="large" />
           </IconButton>

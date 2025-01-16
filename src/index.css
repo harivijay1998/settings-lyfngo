@@ -11,7 +11,7 @@ body {
   max-width: 1536px;
   padding: 0;
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 code {

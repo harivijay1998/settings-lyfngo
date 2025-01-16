@@ -14,28 +14,44 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
-const DisplayCard = ({ templateData, onEditClick }) => {
+const DisplayCard = ({ templateData, onEditClick ,isSidebarOpen}) => {
   const [templateType, setTemplateType] = React.useState("all");
   const [showActive, setShowActive] = React.useState(true);
   const [showDeleted, setShowDeleted] = React.useState(false);
+  const [showLibrary, setShowLibrary] = React.useState(false);
 
   const handleTemplateTypeChange = (event) => {
     setTemplateType(event.target.value);
   };
 
-  const templates = Array.isArray(templateData) ? templateData : templateData?.data || [];
+  const templates = Array.isArray(templateData)
+    ? templateData
+    : templateData?.data || [];
   console.log("Received templates:", templates);
 
   const filteredTemplates = templates.filter((template) => {
-    if (templateType !== "all" && template.plan_type !== templateType) {
+    if (showLibrary) return true; 
+
+    if (templateType === "Others" && template.plan_type === "Others") {
+      return true;
+    }
+
+    if (templateType !== "Others" && template.plan_type !== templateType) {
       return false;
+    }
+
+    if (templateType === "Communication" && template.plan_type === "Communication") {
+      return true;
+    }
+    if (templateType === "Diet Plan" && template.plan_type === "Diet Plan") {
+      return true;
     }
 
     if (showActive && template.template_status !== "APPROVED") {
       return false;
     }
 
-    if (showDeleted && template.template_status === "DELETED") {
+    if (!showDeleted && template.template_status === "DELETED") {
       return false;
     }
 
@@ -45,7 +61,13 @@ const DisplayCard = ({ templateData, onEditClick }) => {
   console.log("Filtered Templates:", filteredTemplates);
 
   return (
-    <Box>
+    <Box   sx={{
+      paddingInlineStart: isSidebarOpen ? "0px" : "0", 
+      transition: "padding-inline-start 0.3s ease",
+      paddingBlockStart: "50px",
+      width: "100%",
+      overflowY:'auto'
+    }}>
       <Box
         sx={{
           display: "flex",
@@ -55,30 +77,43 @@ const DisplayCard = ({ templateData, onEditClick }) => {
           backgroundColor: "#f5f5f5",
           borderBottom: "2px solid #ccc",
           marginBottom: "16px",
+          paddingBlockStart: {md:"50px",xs:'10px'},
+          width: "100%",
         }}
       >
-        <Box sx={{ display: "flex", gap: "16px" }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+        <Box sx={{ display: "flex", gap: {md:"50px" , xs:'20px'} }}>
+          <FormControl size="small" sx={{ minWidth: {md:250 ,xs:150} }}>
             <InputLabel>Template Type</InputLabel>
             <Select value={templateType} onChange={handleTemplateTypeChange}>
-            <MenuItem value="all">All</MenuItem>
+              <MenuItem value="all">All</MenuItem>
               <MenuItem value="Communication">Communication</MenuItem>
-              <MenuItem value="Diet plan">Diet plan</MenuItem>
+              <MenuItem value="Diet Plan">Diet Plan</MenuItem>
               <MenuItem value="Others">Others</MenuItem>
             </Select>
           </FormControl>
 
           <Button
-            variant={showActive ? "contained" : "outlined"}
+            variant={showLibrary ? "contained" : "outlined"}
             color="success"
+            sx={{borderRadius:"20px", paddingInline:'30px'}}
+            onClick={() => setShowLibrary(!showLibrary)}
+          >
+            Template Library
+          </Button>
+
+          <Button
+            variant={showActive ? "contained" :""}
+            color="success"
+            sx={{borderRadius:"20px"}}
             onClick={() => setShowActive(!showActive)}
           >
             Active
           </Button>
 
           <Button
-            variant={showDeleted ? "contained" : "outlined"}
+            variant={showDeleted ? "contained" :"" }
             color="error"
+            sx={{borderRadius:"20px"}}
             onClick={() => setShowDeleted(!showDeleted)}
           >
             Deleted
@@ -91,6 +126,7 @@ const DisplayCard = ({ templateData, onEditClick }) => {
             backgroundColor: "#007bff",
             color: "white",
             borderRadius: "8px",
+            marginRight:'30px'
           }}
         >
           <Typography>
@@ -109,21 +145,40 @@ const DisplayCard = ({ templateData, onEditClick }) => {
                     display: "flex",
                     justifyContent: "space-between",
                     backgroundColor: "#2dbd96",
+                    alignItems: "center",
                     color: "white",
                   }}
                   title={template.template_name}
+                  titleTypographyProps={{
+                    fontSize: "15px",
+                    fontWeight: "bold",
+                  }}
                   action={
                     <Button
+                      sx={{
+                        color: "white",
+                        backgroundColor: "transparent",
+                        "&:hover": {
+                          backgroundColor: "#ffffff33",
+                        },
+                        margin: "0",
+                        position: "relative",
+                        padding: "4px",
+                      }}
                       onClick={() => onEditClick(template)}
-                      variant="outlined"
-                      color="white"
-                      backgroundColor="white"
                     >
                       <EditIcon />
                     </Button>
                   }
                 />
-                <CardContent>
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    gap: "30px",
+                  }}
+                >
                   <Box sx={{ paddingBlock: "20px" }}>
                     <Typography>{template.main_body}</Typography>
                   </Box>
@@ -133,7 +188,9 @@ const DisplayCard = ({ templateData, onEditClick }) => {
             </Grid>
           ))
         ) : (
-          <Typography>No templates available for the selected filters.</Typography>
+          <Typography>
+            No templates available for the selected filters.
+          </Typography>
         )}
       </Grid>
     </Box>

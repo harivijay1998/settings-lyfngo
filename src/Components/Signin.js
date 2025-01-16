@@ -9,6 +9,7 @@ import {
   Typography,
   InputAdornment,
   IconButton,
+  useMediaQuery,
 } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -27,49 +28,49 @@ const carouselImages = [
       "Easily book appointments, Set reminders, follow-up visits , and many more. Get assistance in facilitating your facility.",
   },
   {
-    id: 1,
+    id: 2,
     src: "images/Dashboard_Reports.svg",
-    alt: "slide 1",
+    alt: "slide 2",
     heading: "Dashboard & Reports",
     description:
       "Assisting and Monitoring finances with its simplified data analysis. View all your income and invoices in one place",
   },
   {
-    id: 1,
+    id: 3,
     src: "images/iCalendar.svg",
-    alt: "slide 1",
+    alt: "slide 3",
     heading: "Calendar",
     description:
       "Multiple calendars will lead to more confusion. Start using one single calendar and allocate your time reasonably",
   },
   {
-    id: 1,
+    id: 4,
     src: "images/Integration.svg",
-    alt: "slide 1",
+    alt: "slide 4",
     heading: "Integration",
     description:
       "Integrate contactless transaction modes for a sound and ceaseless system.",
   },
   {
-    id: 1,
+    id: 5,
     src: "images/Membership.svg",
-    alt: "slide 1",
+    alt: "slide 5",
     heading: "Quicksale",
     description:
       "One-stop sales point for promoting and trading your services, memberships, equipment, or instruments and more.",
   },
   {
-    id: 1,
+    id: 6,
     src: "images/QuickSale.svg",
-    alt: "slide 1",
+    alt: "slide 6",
     heading: "Memberships",
     description:
       "Consider memberships for long-term commitments and increase customer satisfaction and retention.",
   },
   {
-    id: 1,
+    id: 7,
     src: "images/WhatsApp_Online.svg",
-    alt: "slide 1",
+    alt: "slide 7",
     heading: "WhatsApp ChatBots",
     description:
       "Getting connected and giving personalized guidance to your patients' queries is now easy as a few clicks.",
@@ -79,8 +80,11 @@ const carouselImages = [
 const Signin = () => {
   const [snackbaropen, setSnackbaropen] = useState(false);
   const [snackbarmsg, setSnackbarmsg] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
-    const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false); 
+  const navigate = useNavigate();
+  
+  const isTablet = useMediaQuery("(max-width: 768px)");
+
   const handleSnackbarClose = () => {
     setSnackbaropen(false);
   };
@@ -110,7 +114,7 @@ const Signin = () => {
     onSubmit: (values) => {
       setSnackbarmsg("Login successfully");
       setSnackbaropen(true);
-      navigate("/home")
+      navigate("/home");
     },
   });
 
@@ -130,7 +134,7 @@ const Signin = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        paddingBlock: { md: "100px" },
+        paddingBlock: { md: "100px"  ,xs:'300px'},
         paddingInline: "100px",
       }}
     >
@@ -142,7 +146,8 @@ const Signin = () => {
           boxShadow: 3,
           borderRadius: "20px",
           display: "flex",
-          justifyContent: "space-evenly",
+          flexDirection:{md:'row', xs:'column'},
+          justifyContent: {md:'space-evenly'},
           gap: "20px",
         }}
       >
@@ -152,7 +157,7 @@ const Signin = () => {
               width: "120px",
               height: "60px",
               paddingBlockStart: "70px",
-              paddingInlineStart: "50px",
+              paddingInlineStart: {md:'50px', xs:'50px'},
             }}
           >
             <img
@@ -161,7 +166,7 @@ const Signin = () => {
               style={{ maxWidth: "100%", maxHeight: "100%" }}
             />
           </Box>
-          <Box sx={{ paddingInlineStart: "50px" }}>
+          <Box sx={{ paddingInlineStart: {md:'50px' , xs:"50px"} }}>
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               Sign in
             </Typography>
@@ -181,10 +186,11 @@ const Signin = () => {
                   marginBottom: 2,
                   marginTop: 2,
                   "& .MuiOutlinedInput-root": { height: "35px", width: { md: "300px" } },
+                  width:{md:'fullwidth' , xs:'90%'}
                 }}
               />
               <TextField
-                fullWidth
+                
                 id="password"
                 placeholder="Password"
                 type={showPassword ? "text" : "password"} 
@@ -195,6 +201,7 @@ const Signin = () => {
                 sx={{
                   marginBottom: 2,
                   "& .MuiOutlinedInput-root": { height: "35px", width: { md: "300px" } },
+                  width:{md:'fullwidth' , xs:'90%'}
                 }}
                 InputProps={{
                   endAdornment: (
@@ -210,7 +217,7 @@ const Signin = () => {
                   ),
                 }}
               />
-                    <Typography>
+              <Typography>
                 <Link
                   to="#"
                   style={{
@@ -226,7 +233,6 @@ const Signin = () => {
                 type="submit"
                 variant="contained"
                 color="primary"
-            
                 sx={{
                   marginBottom: 2,
                   "& .MuiOutlinedInput-root": { height: "35px", width: { md: "300px" }, paddingBlockStart:"10px" },
@@ -247,36 +253,40 @@ const Signin = () => {
             </Alert>
           </Snackbar>
         </Box>
-        <Box
-          sx={{
-            width: { md: "500px", paddingInlineEnd: "40px" },
-            marginBottom: "20px",
-            paddingBlockStart: "70px",
-          }}
-        >
-          <Slider {...carouselSettings}>
-            {carouselImages.map((image) => (
-              <Box key={image.id}>
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  style={{
-                    width: "80%",
-                    height: "200px",
-                    objectFit: "cover",
-                    marginInlineStart: "50px",
-                  }}
-                />
-                <Box sx={{ paddingBlock: "50px" }}>
-                  <Typography sx={{ fontWeight: "600", textAlign: "center" }}>
-                    {image.heading}
-                  </Typography>
-                  <Typography sx={{ textAlign: "center" }}>{image.description}</Typography>
+
+        {!isTablet && (
+          <Box
+            sx={{
+              width: { md: "500px", paddingInlineEnd: "40px" },
+              marginBottom: "20px",
+              paddingBlockStart: "70px",
+              display:{md:'block', xs:'none'}
+            }}
+          >
+            <Slider {...carouselSettings}>
+              {carouselImages.map((image) => (
+                <Box key={image.id}>
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    style={{
+                      width: "80%",
+                      height: "200px",
+                      objectFit: "cover",
+                      marginInlineStart: "50px",
+                    }}
+                  />
+                  <Box sx={{ paddingBlock: "50px" }}>
+                    <Typography sx={{ fontWeight: "600", textAlign: "center" }}>
+                      {image.heading}
+                    </Typography>
+                    <Typography sx={{ textAlign: "center" }}>{image.description}</Typography>
+                  </Box>
                 </Box>
-              </Box>
-            ))}
-          </Slider>
-        </Box>
+              ))}
+            </Slider>
+          </Box>
+        )}
       </Card>
     </Box>
   );

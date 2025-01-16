@@ -9,9 +9,7 @@ import axios from "axios";
 
 const Settings = () => {
   const {
-    templateData,
     addTemplate,
-    updateTemplate,
     setShowCreateTemplate,
     showCreateTemplate,
     setEditingTemplate,
@@ -21,13 +19,17 @@ const Settings = () => {
   } = useTemplateContext();
   
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
 
   const handleCancelClick = () => {
     setShowCreateTemplate(false);
   };
 
   const handleEditClick = (template) => {   
-    console.log("edit comes in " , template)
     setEditingTemplate(template);
     setShowCreateTemplate(true);
   };
@@ -35,7 +37,6 @@ const Settings = () => {
   const handleSubmit = (newTemplate) => {
     addTemplate(newTemplate);
     setShowCreateTemplate(false);
-    updateTemplate(newTemplate)
   };
 
   useEffect(() => {
@@ -51,14 +52,11 @@ const Settings = () => {
           }
         );
         const data = response?.data?.data || [];
-        console.log("API Response Data:", data);
-
         const formattedData = data.map((template) => ({
           ...template,
           isActive: template.isActive ?? true,
           isDeleted: template.isDeleted ?? false,
         }));
-
         setApiTemplateData(formattedData);
       } catch (error) {
         console.error("Error fetching template data:", error);
@@ -72,10 +70,17 @@ const Settings = () => {
   }, [setApiTemplateData]);
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar />
-      <Box sx={{ flex: 1, p: 3 }}>
-        <SettingsHeader />
+    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      {isSidebarOpen && <Sidebar isOpen={isSidebarOpen} />}
+      <Box
+        sx={{
+          flex: 1,
+          transition: "margin-left 0.3s ease",
+          marginLeft: isSidebarOpen ? "230px" : "0", 
+        
+        }}
+      >
+        <SettingsHeader toggleSidebar={toggleSidebar} />
         {showCreateTemplate ? (
           <AddTemplateForm
             onCancel={handleCancelClick}
@@ -87,9 +92,8 @@ const Settings = () => {
             {!loading && (
               <DisplayCard
                 templateData={apiTemplateData}
-                onEditClick={(data) => {
-                  handleEditClick(data);
-                }}
+                onEditClick={handleEditClick}
+                isSidebarOpen={isSidebarOpen}
               />
             )}
             {loading && <p>Loading templates...</p>}

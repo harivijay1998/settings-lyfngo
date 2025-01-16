@@ -2,7 +2,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, Divider, Typography
 import React, { useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-const Sidebar = () => {
+const Sidebar = ({isOpen}) => {
   const [expanded, setExpanded] = useState(false);
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
@@ -75,41 +75,36 @@ const Sidebar = () => {
   ];
 
   return (
-    <Box sx={{ padding: "0px" , width:'15%' }}>
-      <Typography variant="h5" color="black">
-        Settings
-      </Typography>
-      <Divider sx={{ marginBlock: "10px" }} />
-      {accordionData.map((accordion, index) => (
-        <Accordion
-          key={index}
-          expanded={expanded === `panel${index + 1}`}
-          onChange={handleAccordionChange(`panel${index + 1}`)}
-          sx={{ boxShadow: "none", backgroundColor: "#f6f7f9", marginBlock: "10px" }}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls={`panel${index + 1}-content`}
-            id={`panel${index + 1}-header`}
-          >
-            <Typography>{accordion.title}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {accordion.links.map((link, linkIndex) => (
-              <Typography key={linkIndex} sx={{ marginBlockEnd: "10px" }}>
-                <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ textDecoration: "none", color: "#00aaff" }}
-                >
-                  {link.label}
-                </a>
-              </Typography>
-            ))}
-          </AccordionDetails>
-        </Accordion>
-      ))}
+    <Box sx={{ padding: "0px" , width:'13%', position:'fixed', backgroundColor:'#f5f5f5' }}>
+      {isOpen && (
+        <>
+          <Typography variant="h5" color="black" paddingInlineStart={"20px"} paddingBlock={"10px"}>
+            Settings
+          </Typography>
+          <Divider sx={{ marginBlock: "10px" }} />
+          {accordionData.map((accordion, index) => (
+            <Accordion
+              key={index}
+              expanded={expanded === `panel${index + 1}`}
+              onChange={handleAccordionChange(`panel${index + 1}`)}
+              sx={{ boxShadow: "none", border: "none", paddingBlock: "10px", backgroundColor: "#f5f5f5" }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`panel${index + 1}-content`}>
+                <Typography sx={{ fontSize: "15px" }}>{accordion.title}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {accordion.links.map((link, linkIndex) => (
+                  <Typography key={linkIndex} sx={{ marginBlockEnd: "10px" }}>
+                    <a href={link.href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "black", fontSize: "15px" }}>
+                      {link.label}
+                    </a>
+                  </Typography>
+                ))}
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </>
+      )}
     </Box>
   );
 };

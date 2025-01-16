@@ -1,4 +1,4 @@
-import React, { useRef, useState, useContext } from "react";
+import React, { useRef, useState, useContext, useEffect } from "react";
 import {
   Box,
   Button,
@@ -29,9 +29,92 @@ import { Buffer } from "buffer";
 const AddTemplateForm = (props) => {
   const { addTemplate, updateTemplate, apiTemplateData, setApiTemplateData } =
     useTemplateContext();
-  const { onSubmit, onCancel, data } = props;
-  console.log("data", data)
+   
+  const [variables, setVariables] = useState([]); 
+  const [inputValue, setInputValue] = useState(""); 
+  const editableRef1 = useRef(null); 
 
+
+
+
+
+const token ="NUD9xhbwF6rIcPnPKDvJkM3DBsQCTpx3gf0BoO3IELDuv+F1mfPqQ91GIiEfVIKjl76aiWx8EV6oakzMAA8XbQLmXdgqJ/OSzylhbCCyj2yPxlcx9/Hn38Hfoz2IbTdOyFamPoa+bcXdkNi6WUA5hF0dN68nvpDL8TLvFUPdMNdYRvAgMmZKkFPdrakFmHuiBfz58A0rDrhvCdKIFT1S2hE1BYceph7cD3rezcYsn7+iUmXPWJCNYo9tK0F92sPbe0Of0LVAzdZ5k0sMNnWo6w==:aHZnVVBtZ0RaeGRoU2hnZw=="
+
+
+
+const handleAddVariable = () => {
+  const variableIndex = variables.length + 1;
+  const newVariable = { id: variableIndex, value: "" };
+  setVariables((prev) => [...prev, newVariable]);
+
+  const editor = editableRef.current;
+  if (editor) {
+    editor.innerHTML += ` {{${variableIndex}}}`;
+    formik.setFieldValue("body", editor.innerHTML);
+
+    formik.setFieldValue("main_variables", [
+      ...formik.values.main_variables,
+      newVariable.value,
+    ]);
+  }
+};
+  // useEffect(() => {
+  //   const editor = editableRef1.current;
+  //   if (!editor) return;
+
+  //   const observer = new MutationObserver(() => {
+  //     const spans = editor.getElementsByTagName("span");
+  //     const currentVariables = [];
+  //     Array.from(spans).forEach((span) => {
+  //       const index = span.textContent.replace(/[{}]/g, "");
+  //       if (index) currentVariables.push(index);
+  //     });
+
+  //     setVariables((prevVariables) =>
+  //       prevVariables.filter((_, i) => currentVariables.includes(String(i)))
+  //     );
+  //   });
+
+  //   observer.observe(editor, { childList: true, subtree: true });
+
+  //   return () => {
+  //     observer.disconnect();
+  //   };
+  // }, []);
+  
+
+
+  const handleVariableInput = (id, value) => {
+    setVariables((prev) =>
+      prev.map((variable) =>
+        variable.id === id ? { ...variable, value } : variable
+      )
+    );
+    formik.setFieldValue("variables", variables);
+  };
+
+
+
+  const handleBodyInput = () => {
+    const editor = editableRef.current;
+    const content = editor.innerHTML;
+    const matches = content.match(/{{\d+}}/g) || [];
+    const variableIds = matches.map((match) => parseInt(match.replace(/[{}]/g, "")));
+
+    variableIds.forEach((id) => {
+      if (!variables.some((variable) => variable.id === id)) {
+        setVariables((prev) => [...prev, { id, value: "" }]);
+      }
+    });
+
+    setVariables((prev) =>
+      prev.filter((variable) => variableIds.includes(variable.id))
+    );
+
+    formik.setFieldValue("body", content);
+  };
+
+  const { onSubmit, onCancel, data } = props;
   const editableRef = useRef(null);
   const [mediaFiles, setMediaFiles] = useState([]);
   const [headerType, setHeaderType] = useState("None");
@@ -39,13 +122,17 @@ const AddTemplateForm = (props) => {
   const csrf = () => {
     var timeStamp = Date.now() + 1 * 60 * 60 * 1000;
     var productName = "LYFnGO-REACT-NATIVE";
-    var encode = Buffer.from(`${timeStamp + "###" + productName}`).toString(
-      "base64"
-    );
+    var encode = Buffer.from(`${timeStamp + "###" + productName}`).toString("base64");
     return encode;
   };
-  const token =
-    "NUD9xhbwF6rIcPnPKDvJkM3DBsQCTpx3gf0BoO3IELDuv+F1mfPqQ91GIiEfVIKjl76aiWx8EV6oakzMAA8XbTkYCX6C163EvP4m+QS/IoK4CEmAWl6G1WkFn4EfNyXaBBPTCCdtSfRSWCcSdMhfx2XD2IOiF4wKtDld7Txz71cv6yRWEG+9bpg6HR7YezUxOqizxW4Fig5o2x+PDwowaPa+XhIPrRSprFK6sLdP76uj3+lDe9zN9n8PLnOfrorwj2BDyimvw1XBZVVYL6XMtQ==:aHZnVVBtZ0RaeGRoU2hnZw==";
+
+
+  useEffect(() => {
+    if (data && editableRef.current) {
+      editableRef.current.innerHTML = data.body;
+    }
+  }, [data]);
+
   const formik = useFormik({
     initialValues: {
       templateName: data ? data.template_name : "",
@@ -54,6 +141,7 @@ const AddTemplateForm = (props) => {
       language: data ? data.language : "",
       header: data ? data.header : "None",
       body: data ? data.body : "",
+      main_variables:data ? data.main_variables : [],
       footer: data ? data.footer : "",
     },
     validationSchema: Yup.object({
@@ -66,25 +154,39 @@ const AddTemplateForm = (props) => {
         .required("Body is required"),
     }),
     onSubmit: async (values) => {
-      const payload = {
-        template_name: values.templateName,
-        category: values.category,
-        plan_type: values.templateType,
-        language: "en",
-        header_format: "",
-        header_media: {},
-        header_body: "",
-        header_variables: [],
-        main_body: `<html>${values.body}</html>`,
-        main_variables: [],
-        footer: values.footer || "",
-        tentuuid: "fb5cjv70",
-        created_by: "m7pwft41",
-        buttons: [],
-      };
-      console.log("data", data)
+      const payload = data
+      ? {
+          template_id: data.template_id, 
+          plan_type:"",
+          header_format: "",
+          header_media: {},
+          header_body: "",
+          header_variables: [],
+          main_body: `<html>${values.body}</html>`,
+          main_variables: variables.map((variable) => variable.value), 
+          footer: values.footer || "",
+          tentuuid: "fb5cjv70",
+          tent_user_uuid: "m7pwft41",
+          buttons: [],
+        }
+      : {
+          template_name: values.templateName,
+          category: values.category,
+          plan_type: values.templateType,
+          language: "en",
+          header_format: "",
+          header_media: {},
+          header_body: "",
+          header_variables: [],
+          main_body: `<html>${values.body}</html>`,
+          main_variables:  variables.map((variable) => variable.value), 
+          footer: values.footer || "",
+          tentuuid: "fb5cjv70",
+          created_by: "m7pwft41",
+          buttons: [],
+        };
+  
       try {
-        console.log("update comes in")
         let response;
         if (data) {
           response = await axios.put(
@@ -93,7 +195,6 @@ const AddTemplateForm = (props) => {
             {
               headers: {
                 "Content-Type": "application/json",
-                //Authorization: `Bearer ${token}`,
                 Internal: "LYFnGO",
                 "X-SECURITY": csrf(),
               },
@@ -107,6 +208,7 @@ const AddTemplateForm = (props) => {
             {
               headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
                 Internal: "LYFnGO",
                 "X-SECURITY": csrf(),
               },
@@ -114,9 +216,7 @@ const AddTemplateForm = (props) => {
           );
 
           addTemplate(values);
-        }
-
-        const res = await axios.get(
+             const res = await axios.get(
           "https://flash.lyf.yoga/files/communication/metatemplate/library?tentuuid=fb5cjv70&template_option=Others",
           {
             headers: {
@@ -126,6 +226,9 @@ const AddTemplateForm = (props) => {
         );
 
         setApiTemplateData(res.data);
+        }
+
+     
       } catch (error) {
         console.error(
           "Error saving template:",
@@ -136,7 +239,6 @@ const AddTemplateForm = (props) => {
     },
   });
 
-  console.log("eee", formik?.errors);
   const handleFileUpload = (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -172,302 +274,260 @@ const AddTemplateForm = (props) => {
 
   return (
     <Box
-      sx={{
-        padding: 3,
-        maxWidth: 1000,
-        margin: "0 auto",
-        borderRadius: 2,
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <form onSubmit={formik.handleSubmit}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <Box
-            display={"flex"}
-            justifyContent={"space-between"}
-            alignItems={"center"}
-            gap={"50px"}
-          >
-            <Box>
-              <TextField
-                fullWidth
-                label="Template name*"
-                name="templateName"
-                value={formik.values.templateName}
+    sx={{
+      padding: 3,
+      width: 1100,
+      margin: "0 auto",
+      borderRadius: 2,
+      backgroundColor: "#f5f5f5",
+    }}
+  >
+    <form onSubmit={formik.handleSubmit}>
+      <Stack
+        direction={{ xs: "column", sm: "column", md: "row" }}
+        spacing={2}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexDirection: { xs: "column", sm: "column", md: "row" }, 
+            alignItems: "center",
+            gap: "20px",
+          }}
+        >
+          <Box sx={{ width: "100%" }}>
+            <TextField
+              fullWidth
+              label="Template name*"
+              name="templateName"
+              value={formik.values.templateName}
+              disabled={!!data}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={
+                formik.touched.templateName && Boolean(formik.errors.templateName)
+              }
+              helperText={formik.touched.templateName && formik.errors.templateName}
+              sx={{
+                marginBottom: 4,
+                width: {xs:"60%" , md:400},
+                "& .MuiOutlinedInput-root": {
+                  height: "30px",
+                },
+                "& .MuiOutlinedInput-input": {
+                  padding: "0 14px",
+                },
+                "& .MuiInputLabel-root": {
+                  top: "-9px",
+                  fontSize: "14px",
+                },
+                "& .MuiInputLabel-shrink": {
+                  top: "0px",
+                },
+              }}
+            />
+            <FormControl
+              fullWidth
+              sx={{
+                marginBottom: 2,
+                "& .MuiOutlinedInput-root": {
+                  height: "30px",
+                },
+                "& .MuiOutlinedInput-input": {
+                  padding: "0px 14px",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "14px",
+                  top: "-9px",
+                },
+                "& .MuiInputLabel-shrink": {
+                  top: "-5px",
+                },
+              }}
+            >
+              <InputLabel>Template Type*</InputLabel>
+              <Select
+                name="templateType"
+                value={formik.values.templateType}
                 disabled={!!data}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={
-                  formik.touched.templateName &&
-                  Boolean(formik.errors.templateName)
-                }
-                helperText={
-                  formik.touched.templateName && formik.errors.templateName
+                  formik.touched.templateType &&
+                  Boolean(formik.errors.templateType)
                 }
                 sx={{
-                  marginBottom: 4,
-                  width: "400px",
-                  "& .MuiOutlinedInput-root": {
-                    height: "30px",
-                  },
-                  "& .MuiOutlinedInput-input": {
-                    padding: "0 14px",
-                  },
-                  "& .MuiInputLabel-root": {
-                    top: "-9px",
-                    fontSize: "14px",
-                  },
-                  "& .MuiInputLabel-shrink": {
-                    top: "0px",
-                  },
-                }}
-              />
-              <FormControl
-                fullWidth
-                sx={{
                   marginBottom: 2,
-                  width: "400px",
-                  "& .MuiOutlinedInput-root": {
-                    height: "30px",
-                  },
-                  "& .MuiOutlinedInput-input": {
-                    padding: "0px 14px",
-                  },
-                  "& .MuiInputLabel-root": {
-                    fontSize: "14px",
-                    top: "-9px",
-                  },
-                  "& .MuiInputLabel-shrink": {
-                    top: "-5px",
-                  },
+                  width: {xs:"60%" , md:400},
                 }}
               >
-                <InputLabel>Template Type*</InputLabel>
-                <Select
-                  name="templateType"
-                  value={formik.values.templateType}
-                  disabled={!!data}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.templateType &&
-                    Boolean(formik.errors.templateType)
-                  }
-                  sx={{
-                    marginBottom: 2,
-                    width: "400px",
-                  }}
-                >
-                  <MenuItem value="Communication">Communication</MenuItem>
-                  <MenuItem value="Diet Plan">Diet Plan</MenuItem>
-                  <MenuItem value="Others">Others</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box>
-              <FormControl
-                fullWidth
-                sx={{
-                  marginBottom: 2,
-                  width: "400px",
-                  "& .MuiOutlinedInput-root": {
-                    height: "30px",
-                  },
-                  "& .MuiOutlinedInput-input": {
-                    padding: "0px 14px",
-                  },
-                  "& .MuiInputLabel-root": {
-                    fontSize: "14px",
-                    top: "-9px",
-                  },
-                  "& .MuiInputLabel-shrink": {
-                    top: "-5px",
-                  },
-                }}
-              >
-                <InputLabel>Select Category*</InputLabel>
-                <Select
-                  name="category"
-                  value={formik.values.category}
-                  disabled={!!data}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.category && Boolean(formik.errors.category)
-                  }
-                  sx={{
-                    marginBottom: 2,
-                    width: "400px",
-                  }}
-                >
-                  <MenuItem value="MARKETING">Marketing</MenuItem>
-                  <MenuItem value="UTILITY">Utility</MenuItem>
-                </Select>
-              </FormControl>
-      
-              <FormControl
-                fullWidth
-                sx={{
-                  marginBottom: 2,
-                  width: "400px",
-                  "& .MuiOutlinedInput-root": {
-                    height: "30px",
-                  },
-                  "& .MuiOutlinedInput-input": {
-                    padding: "0px 14px",
-                  },
-                  "& .MuiInputLabel-root": {
-                    fontSize: "14px",
-                    top: "-9px",
-                  },
-                  "& .MuiInputLabel-shrink": {
-                    top: "-5px",
-                  },
-                }}
-              >
-                <InputLabel>Select Language*</InputLabel>
-                <Select
-                  name="language"
-                  value={formik.values.language}
-                  disabled={!!data}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.language && Boolean(formik.errors.language)
-                  }
-                  sx={{
-                    marginBottom: 2,
-                    width: "400px",
-                  }}
-                >
-                  <MenuItem value="en">English</MenuItem>
-                  <MenuItem value="Spanish">Spanish</MenuItem>
-                  <MenuItem value="French">French</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
+                <MenuItem value="Communication">Communication</MenuItem>
+                <MenuItem value="Diet Plan">Diet Plan</MenuItem>
+                <MenuItem value="others">Others</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
-        </Stack>
-                
-        <Typography variant="body1" sx={{ marginTop: 2 }}>
-          Header
-        </Typography>
-        <RadioGroup
-          row
-          name="header"
-          value={formik.values.header}
-          onChange={(e) => {
-            formik.handleChange(e);
-            setHeaderType(e.target.value);
-          }}
-        >
-          <FormControlLabel value="None" control={<Radio />} label="None" />
-          <FormControlLabel value="Media" control={<Radio />} label="Media" />
-          <FormControlLabel value="Text" control={<Radio />} label="Text" />
-        </RadioGroup>
-          
-        {headerType === "Media" && (
-          <Box sx={{ marginBottom: 2, textAlign: "right" }}>
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: "none", height: "200px", width: "200px" }}
-              id="upload-photo"
-              onChange={(e) => handleFileUpload(e, "image")}
-            />
-            <label htmlFor="upload-photo">
-              <IconButton component="span">
-                <InsertPhotoIcon />
-              </IconButton>
-            </label>
-
-            <input
-              type="file"
-              accept="video/*"
-              style={{ display: "none", height: "200px", width: "200px" }}
-              id="upload-video"
-              onChange={(e) => handleFileUpload(e, "video")}
-            />
-            <label htmlFor="upload-video">
-              <IconButton component="span">
-                <VideoLibraryIcon />
-              </IconButton>
-            </label>
-
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              style={{ display: "none" }}
-              id="upload-doc"
-              onChange={(e) => handleFileUpload(e, "doc")}
-            />
-            <label htmlFor="upload-doc">
-              <IconButton component="span">
-                <DescriptionIcon />
-              </IconButton>
-            </label>
+  
+          <Box sx={{ width: "100%" }}>
+            <FormControl
+              fullWidth
+              sx={{
+                marginBottom: 2,
+                "& .MuiOutlinedInput-root": {
+                  height: "30px",
+                },
+                "& .MuiOutlinedInput-input": {
+                  padding: "0px 14px",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "14px",
+                  top: "-9px",
+                },
+                "& .MuiInputLabel-shrink": {
+                  top: "-5px",
+                },
+              }}
+            >
+              <InputLabel>Select Category*</InputLabel>
+              <Select
+                name="category"
+                value={formik.values.category}
+                disabled={!!data}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={
+                  formik.touched.category && Boolean(formik.errors.category)
+                }
+                sx={{
+                  marginBottom: 2,
+                  width: {xs:"60%" , md:400},
+                }}
+              >
+                <MenuItem value="Marketing">Marketing</MenuItem>
+                <MenuItem value="utility">Utility</MenuItem>
+              </Select>
+            </FormControl>
+  
+            <FormControl
+              fullWidth
+              sx={{
+                marginBottom: 2,
+                "& .MuiOutlinedInput-root": {
+                  height: "30px",
+                },
+                "& .MuiOutlinedInput-input": {
+                  padding: "0px 14px",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "14px",
+                  top: "-9px",
+                },
+                "& .MuiInputLabel-shrink": {
+                  top: "-5px",
+                },
+              }}
+            >
+              <InputLabel>Select Language*</InputLabel>
+              <Select
+                name="language"
+                value={formik.values.language}
+                disabled={!!data}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={
+                  formik.touched.language && Boolean(formik.errors.language)
+                }
+                sx={{
+                  marginBottom: 2,
+                  width: {xs:"60%" , md:400},
+                }}
+              >
+                <MenuItem value="en">English</MenuItem>
+                <MenuItem value="Spanish">Spanish</MenuItem>
+                <MenuItem value="French">French</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
-        )}
-
-        <Typography variant="body1" sx={{ marginTop: 2 }}>
-          Body*
+        </Box>
+      </Stack>
+  
+      <Typography variant="body1" sx={{ marginTop: 2 }}>
+        Body*
+      </Typography>
+      <Box
+        ref={editableRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleBodyInput}
+        sx={{
+          minHeight: "150px",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+          padding: "10px",
+          backgroundColor: "#fff",
+          fontSize: "16px",
+          outline: "none",
+          marginBottom: 2,
+          width:{md:'100%' , xs:'58%'}
+        }}
+      ></Box>
+      {formik.touched.body && formik.errors.body && (
+        <Typography color="error" variant="caption">
+          {formik.errors.body}
         </Typography>
-        <Box
-          ref={editableRef}
-          contentEditable
-          suppressContentEditableWarning
-          onInput={() =>
-            formik.setFieldValue("body", editableRef.current.innerText)
-          }
-          sx={{
-            minHeight: "150px",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            padding: "10px",
-            backgroundColor: "#fff",
-            fontSize: "16px",
-            outline: "none",
-            marginBottom: 1,
-          }}
-        ></Box>
-        {formik.touched.body && formik.errors.body && (
-          <Typography color="error" variant="caption">
-            {formik.errors.body}
-          </Typography>
-        )}
-
-        <Box textAlign="right" mt={2}>
-          <IconButton onClick={() => applyFormatting("bold")}>
-            <FormatBoldIcon />
-          </IconButton>
-          <IconButton onClick={() => applyFormatting("italic")}>
-            <FormatItalicIcon />
-          </IconButton>
-          <Button variant="contained" sx={{ marginLeft: 1 }}>
-            Add Variable
-          </Button>
-        </Box>
-        {console.log("category", formik.values.category)}
-        <TextField
-          fullWidth
-          label="Footer (optional)"
-          name="footer"
-          value={formik.values.footer}
-          onChange={formik.handleChange}
-          sx={{ marginTop: 2 }}
-        />
-        {console.log("footer" , formik.values.footer)}
-
-        <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
-          <Button variant="contained" type="submit">
-            {data ? "Update" : "Save"}
-          </Button>
-          <Button variant="outlined" onClick={onCancel}>
-            Cancel
-          </Button>
-        </Box>
-      </form>
-    </Box>
+      )}
+  
+      <Box sx={{textAlign:{md:'right', xs:'left'}}} mt={2}>
+        <IconButton onClick={() => applyFormatting("bold")}>
+          <FormatBoldIcon />
+        </IconButton>
+        <IconButton onClick={() => applyFormatting("italic")}>
+          <FormatItalicIcon />
+        </IconButton>
+      </Box>
+      <Box mt={2} display="flex" alignItems="center">
+        <Button variant="contained" color="primary" onClick={handleAddVariable}>
+          Add Variable
+        </Button>
+      </Box>
+  
+      <Typography variant="body2" mt={3}>
+        Variables:
+      </Typography>
+      <Stack spacing={2} mt={2}>
+        {variables.map((variable) => (
+          <TextField
+            key={variable.id}
+            label={`{{${variable.id}}}`}
+            value={variable.value}
+            onChange={(e) => handleVariableInput(variable.id, e.target.value)}
+          />
+        ))}
+      </Stack>
+  
+   
+  
+      <TextField
+        fullWidth
+        label="Footer (optional)"
+        name="footer"
+        value={formik.values.footer}
+        onChange={formik.handleChange}
+        sx={{ marginTop: 2  ,width:{md:'100%' , xs:'59%'}}}
+      />
+  
+      <Box sx={{display:"flex" ,justifyContent:{md:"flex-end", xs:'flex-start'} ,gap:2, mt:2}} >
+        <Button variant="contained" type="submit">
+          {data ? "Update" : "Save"}
+        </Button>
+        <Button variant="outlined" onClick={onCancel}>
+          Cancel
+        </Button>
+      </Box>
+    </form>
+  </Box>
+  
   );
 };
 

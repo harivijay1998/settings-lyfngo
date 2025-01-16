@@ -1,16 +1,16 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import { Box, Typography, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import AddIcon from "@mui/icons-material/Add";
 import AddTemplateForm from "./AddTemplate";
-import DisplayCard from "../MainContent/WhatsApp";
 import { useTemplateContext } from "../TemplateContext";
 
-const SettingsHeader = () => {
-  const {templateData,showCreateTemplate,setShowCreateTemplate,editingTemplate} = useTemplateContext()
+const SettingsHeader = ({ toggleSidebar }) => {
+  const { showCreateTemplate, setShowCreateTemplate, editingTemplate } = useTemplateContext();
+
   const handleOpen = () => setShowCreateTemplate(true);
-  const handleClose = () => setShowCreateTemplate(false);  
+  const handleClose = () => setShowCreateTemplate(false);
 
   return (
     <>
@@ -22,8 +22,10 @@ const SettingsHeader = () => {
           backgroundColor: "#007bff",
           color: "white",
           padding: "5px 20px",
-          width: "100%",
-          marginBlockStart: "-20px",
+          position: "fixed",
+          width: {md:"77%" , xs:"82vw"
+          }, 
+          zIndex: 1100,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -34,6 +36,7 @@ const SettingsHeader = () => {
               "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.3)" },
             }}
             aria-label="Menu"
+            onClick={toggleSidebar}
           >
             <MenuIcon />
           </IconButton>
@@ -68,7 +71,7 @@ const SettingsHeader = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0px 1px 3px rgba(0,0,0,0.1)",
+              boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.1)",
               marginRight: "8px",
             }}
           >
@@ -79,15 +82,14 @@ const SettingsHeader = () => {
       </Box>
 
       <Dialog open={showCreateTemplate} onClose={handleClose} maxWidth="lg" fullWidth>
-        <DialogTitle>Create WhatsApp Template</DialogTitle>
-        <DialogContent>
+        <DialogTitle sx={{ backgroundColor: "#0062dd", color: "white" }}>Create WhatsApp Template</DialogTitle>
+        <DialogContent sx={{ padding: 0 }}>
           <AddTemplateForm onCancel={handleClose} data={editingTemplate} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>
-      
     </>
   );
 };
