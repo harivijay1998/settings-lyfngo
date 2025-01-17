@@ -154,17 +154,34 @@ const SideBar = ({ setActiveView }) => {
   sx={{
     width: "100px",
     bgcolor: "#f5f5f5", 
-    height: "90vh",
+    height: "95vh",
     overflowY: "auto",
+    overflowX:'hidden',
     paddingInline: "0px",
     marginBlock: "120px",
     position: "relative",
-    boxShadow: "5px 0 5px -1px rgba(0, 0, 0, 0.2), 8px 0 8px 0px rgba(0, 0, 0, 0.14), 14px 0 14px 0px rgba(0, 0, 0, 0.12)", 
     "&::-webkit-scrollbar": {
-      display: "none", 
+      display: "block", 
+
+    },
+    "&::-webkit-scrollbar": {
+      width: "4px",
+      height:'10px'
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "#888",
+      borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+      backgroundColor: "#555",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor: "#f1f1f1",
     },
   }}
 >
+
+
           <List sx={{ minHeight: "100vh", paddingTop: "20px" }}>
             {compoList.map((icon) => (
               <ListItem

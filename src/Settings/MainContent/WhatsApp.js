@@ -189,7 +189,7 @@ const DisplayCard = ({ templateData, onEditClick ,isSidebarOpen}) => {
             </Grid>
           ))
         ) : (
-          <Typography sx={{marginInlineStart:"20px"}}>
+          <Typography sx={{marginInlineStart:"20px" , position :'relative' , top:'200px' , left:'300px'}}>
             No templates available for the selected filters.
           </Typography>
         )}

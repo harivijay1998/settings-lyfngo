@@ -96,7 +96,7 @@ const AppHeader = () => {
                 outline: "none",
                 background: "transparent",
                 fontSize: "16px",
-                fontWeight: "bold",
+                
               }}
             >
               <option>Mobile No</option>
