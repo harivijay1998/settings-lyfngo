@@ -150,20 +150,21 @@ const SideBar = ({ setActiveView }) => {
           // marginBlockStart: "-130px",
         }}
       >
-        <Box
-          sx={{
-            width: "100px",
-            bgcolor: "#f0f0f0",
-            height: "100vh",
-            overflowY: "auto",
-            paddingInline: "0px",
-            marginBlock: "120px",
-            position: "relative",
-            "&::-webkit-scrollbar": {
-              display: "none",
-            },
-          }}
-        >
+    <Box
+  sx={{
+    width: "100px",
+    bgcolor: "#f5f5f5", 
+    height: "90vh",
+    overflowY: "auto",
+    paddingInline: "0px",
+    marginBlock: "120px",
+    position: "relative",
+    boxShadow: "5px 0 5px -1px rgba(0, 0, 0, 0.2), 8px 0 8px 0px rgba(0, 0, 0, 0.14), 14px 0 14px 0px rgba(0, 0, 0, 0.12)", 
+    "&::-webkit-scrollbar": {
+      display: "none", 
+    },
+  }}
+>
           <List sx={{ minHeight: "100vh", paddingTop: "20px" }}>
             {compoList.map((icon) => (
               <ListItem

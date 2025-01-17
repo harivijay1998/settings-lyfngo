@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import { Box } from "@mui/material";
 import SettingsHeader from "./Header";
-import DisplayCard from "./MainContent/WhatsApp"; 
-import { useTemplateContext } from "./TemplateContext"; 
-import AddTemplateForm from "./Header/AddTemplate"; 
+import DisplayCard from "./MainContent/WhatsApp";
+import { useTemplateContext } from "./TemplateContext";
+import AddTemplateForm from "./Header/AddTemplate";
 import axios from "axios";
 
 const Settings = () => {
@@ -17,7 +17,7 @@ const Settings = () => {
     apiTemplateData,
     setApiTemplateData,
   } = useTemplateContext();
-  
+
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
@@ -29,7 +29,7 @@ const Settings = () => {
     setShowCreateTemplate(false);
   };
 
-  const handleEditClick = (template) => {   
+  const handleEditClick = (template) => {
     setEditingTemplate(template);
     setShowCreateTemplate(true);
   };
@@ -60,7 +60,7 @@ const Settings = () => {
         setApiTemplateData(formattedData);
       } catch (error) {
         console.error("Error fetching template data:", error);
-        setApiTemplateData([]); 
+        setApiTemplateData([]);
       } finally {
         setLoading(false);
       }
@@ -70,14 +70,30 @@ const Settings = () => {
   }, [setApiTemplateData]);
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        overflow: "scroll",
+        "&::-webkit-scrollbar": {
+          width: "8px",
+        },
+        
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: "#888",
+          borderRadius: "4px",
+        },
+        "&::-webkit-scrollbar-thumb:hover": {
+          backgroundColor: "#555",
+        },
+      }}
+    >
       {isSidebarOpen && <Sidebar isOpen={isSidebarOpen} />}
       <Box
         sx={{
           flex: 1,
           transition: "margin-left 0.3s ease",
-          marginLeft: isSidebarOpen ? "230px" : "0", 
-        
+          marginLeft: isSidebarOpen ? "210px" : "0",
         }}
       >
         <SettingsHeader toggleSidebar={toggleSidebar} />

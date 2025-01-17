@@ -58,29 +58,7 @@ const handleAddVariable = () => {
     ]);
   }
 };
-  // useEffect(() => {
-  //   const editor = editableRef1.current;
-  //   if (!editor) return;
-
-  //   const observer = new MutationObserver(() => {
-  //     const spans = editor.getElementsByTagName("span");
-  //     const currentVariables = [];
-  //     Array.from(spans).forEach((span) => {
-  //       const index = span.textContent.replace(/[{}]/g, "");
-  //       if (index) currentVariables.push(index);
-  //     });
-
-  //     setVariables((prevVariables) =>
-  //       prevVariables.filter((_, i) => currentVariables.includes(String(i)))
-  //     );
-  //   });
-
-  //   observer.observe(editor, { childList: true, subtree: true });
-
-  //   return () => {
-  //     observer.disconnect();
-  //   };
-  // }, []);
+ 
   
 
 
@@ -98,21 +76,24 @@ const handleAddVariable = () => {
   const handleBodyInput = () => {
     const editor = editableRef.current;
     const content = editor.innerHTML;
-    const matches = content.match(/{{\d+}}/g) || [];
-    const variableIds = matches.map((match) => parseInt(match.replace(/[{}]/g, "")));
-
-    variableIds.forEach((id) => {
-      if (!variables.some((variable) => variable.id === id)) {
-        setVariables((prev) => [...prev, { id, value: "" }]);
-      }
-    });
-
-    setVariables((prev) =>
-      prev.filter((variable) => variableIds.includes(variable.id))
-    );
-
-    formik.setFieldValue("body", content);
+    if (content) {
+      const matches = content.match(/{{\d+}}/g) || [];
+      const variableIds = matches.map((match) => parseInt(match.replace(/[{}]/g, "")));
+  
+      variableIds.forEach((id) => {
+        if (!variables.some((variable) => variable.id === id)) {
+          setVariables((prev) => [...prev, { id, value: "" }]);
+        }
+      });
+  
+      setVariables((prev) =>
+        prev.filter((variable) => variableIds.includes(variable.id))
+      );
+  
+      formik.setFieldValue("body", content);
+    }
   };
+  
 
   const { onSubmit, onCancel, data } = props;
   const editableRef = useRef(null);
@@ -128,10 +109,23 @@ const handleAddVariable = () => {
 
 
   useEffect(() => {
-    if (data && editableRef.current) {
-      editableRef.current.innerHTML = data.body;
+    if (data) {
+      console.log("Received Data:", data); 
+      editableRef.current.innerHTML = data.main_body; 
+      formik.setFieldValue("body", data.main_body || ""); 
+      formik.setFieldValue("templateType", data.plan_type || ""); 
+      formik.setFieldValue("category", data.category || ""); 
+      formik.setFieldValue("language", data.language || "");
+      formik.setFieldValue("templateName", data.template_name || ""); 
+      setVariables(
+        (data.main_variables || []).map((variableValue) => ({
+          id: Math.random(),
+          value: variableValue,
+        }))
+      ); 
     }
   }, [data]);
+  
 
   const formik = useFormik({
     initialValues: {
@@ -141,7 +135,7 @@ const handleAddVariable = () => {
       language: data ? data.language : "",
       header: data ? data.header : "None",
       body: data ? data.body : "",
-      main_variables:data ? data.main_variables : [],
+      main_variables: data ? data.main_variables : [],
       footer: data ? data.footer : "",
     },
     validationSchema: Yup.object({
@@ -227,7 +221,7 @@ const handleAddVariable = () => {
 
         setApiTemplateData(res.data);
         }
-
+        alert("Template Added Successfully")
      
       } catch (error) {
         console.error(
@@ -364,7 +358,7 @@ const handleAddVariable = () => {
               >
                 <MenuItem value="Communication">Communication</MenuItem>
                 <MenuItem value="Diet Plan">Diet Plan</MenuItem>
-                <MenuItem value="others">Others</MenuItem>
+                <MenuItem value="Others">Others</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -404,7 +398,7 @@ const handleAddVariable = () => {
                   width: {xs:"60%" , md:400},
                 }}
               >
-                <MenuItem value="Marketing">Marketing</MenuItem>
+                <MenuItem value="MARKETING">Marketing</MenuItem>
                 <MenuItem value="utility">Utility</MenuItem>
               </Select>
             </FormControl>

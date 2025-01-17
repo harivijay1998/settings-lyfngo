@@ -66,7 +66,8 @@ const DisplayCard = ({ templateData, onEditClick ,isSidebarOpen}) => {
       transition: "padding-inline-start 0.3s ease",
       paddingBlockStart: "50px",
       width: "100%",
-      overflowY:'auto'
+    
+    
     }}>
       <Box
         sx={{
@@ -77,7 +78,7 @@ const DisplayCard = ({ templateData, onEditClick ,isSidebarOpen}) => {
           backgroundColor: "#f5f5f5",
           borderBottom: "2px solid #ccc",
           marginBottom: "16px",
-          paddingBlockStart: {md:"50px",xs:'10px'},
+          paddingBlockStart:{md:'20px' , xs:'10px'},
           width: "100%",
         }}
       >
@@ -135,7 +136,7 @@ const DisplayCard = ({ templateData, onEditClick ,isSidebarOpen}) => {
         </Box>
       </Box>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2} >
         {filteredTemplates.length > 0 ? (
           filteredTemplates.map((template, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
@@ -188,7 +189,7 @@ const DisplayCard = ({ templateData, onEditClick ,isSidebarOpen}) => {
             </Grid>
           ))
         ) : (
-          <Typography>
+          <Typography sx={{marginInlineStart:"20px"}}>
             No templates available for the selected filters.
           </Typography>
         )}

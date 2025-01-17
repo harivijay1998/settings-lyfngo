@@ -23,7 +23,7 @@ const SettingsHeader = ({ toggleSidebar }) => {
           color: "white",
           padding: "5px 20px",
           position: "fixed",
-          width: {md:"77%" , xs:"82vw"
+          width: {md:"90vw" , xs:"82vw"
           }, 
           zIndex: 1100,
         }}
@@ -51,6 +51,8 @@ const SettingsHeader = ({ toggleSidebar }) => {
         <Button
           variant="contained"
           sx={{
+            position:'relative',
+            left:'-200px',
             backgroundColor: "white",
             color: "#007bff",
             textTransform: "none",
